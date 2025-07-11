@@ -28,8 +28,13 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
   </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Autofac" Version="8.3.0" />
     <PackageReference Include="Questy" Version="0.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 </Project>
