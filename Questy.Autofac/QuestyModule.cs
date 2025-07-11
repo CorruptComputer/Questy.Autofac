@@ -1,15 +1,12 @@
-﻿using System.Runtime.CompilerServices;
-using Autofac;
+﻿using Autofac;
 using Questy.Autofac.Extensions;
 using Questy.Pipeline;
 using Module = Autofac.Module;
 
 namespace Questy.Autofac;
 
-internal class QuestyModule : Module
-{
-    private readonly QuestyConfiguration QuestyConfiguration;
-    
+internal class QuestyModule(QuestyConfiguration QuestyConfiguration) : Module
+{    
     private readonly Type[] builtInPipelineBehaviorTypes =
     {
         typeof(RequestPostProcessorBehavior<,>),
@@ -17,11 +14,6 @@ internal class QuestyModule : Module
         typeof(RequestExceptionActionProcessorBehavior<,>),
         typeof(RequestExceptionProcessorBehavior<,>),
     };
-
-    public QuestyModule(QuestyConfiguration QuestyConfiguration)
-    {
-        this.QuestyConfiguration = QuestyConfiguration;
-    }
 
     protected override void Load(ContainerBuilder builder)
     {
@@ -31,37 +23,37 @@ internal class QuestyModule : Module
             .IfNotRegistered(typeof(IServiceProvider));
         
         builder
-            .RegisterType(this.QuestyConfiguration.MediatorType)
+            .RegisterType(QuestyConfiguration.MediatorType)
             .As<IMediator>()
             .As<IPublisher>()
             .As<ISender>()
-            .ApplyTargetScope(this.QuestyConfiguration.RegistrationScope);
+            .ApplyTargetScope(QuestyConfiguration.RegistrationScope);
 
         builder
-            .RegisterType(this.QuestyConfiguration.NotificationPublisherType)
+            .RegisterType(QuestyConfiguration.NotificationPublisherType)
             .As<INotificationPublisher>()
-            .ApplyTargetScope(this.QuestyConfiguration.RegistrationScope);
+            .ApplyTargetScope(QuestyConfiguration.RegistrationScope);
 
-        foreach (var openHandlerType in this.QuestyConfiguration.OpenGenericTypesToRegister)
+        foreach (Type openHandlerType in QuestyConfiguration.OpenGenericTypesToRegister)
         {
-            builder.RegisterAssemblyTypes(this.QuestyConfiguration.HandlersFromAssemblies)
+            builder.RegisterAssemblyTypes(QuestyConfiguration.HandlersFromAssemblies)
                 .AsClosedTypesOf(openHandlerType)
-                .ApplyTargetScope(this.QuestyConfiguration.RegistrationScope);
+                .ApplyTargetScope(QuestyConfiguration.RegistrationScope);
         }
 
-        foreach (var builtInPipelineBehaviorType in this.builtInPipelineBehaviorTypes)
+        foreach (Type builtInPipelineBehaviorType in builtInPipelineBehaviorTypes)
         {
-            this.RegisterGeneric(builder, builtInPipelineBehaviorType, typeof(IPipelineBehavior<,>));
+            RegisterGeneric(builder, builtInPipelineBehaviorType, typeof(IPipelineBehavior<,>));
         }
             
-        foreach (var customBehaviorType in this.QuestyConfiguration.CustomPipelineBehaviors)
+        foreach (Type customBehaviorType in QuestyConfiguration.CustomPipelineBehaviors)
         {
-            this.RegisterGeneric(builder, customBehaviorType, typeof(IPipelineBehavior<,>));
+            RegisterGeneric(builder, customBehaviorType, typeof(IPipelineBehavior<,>));
         }
         
-        foreach (var customBehaviorType in this.QuestyConfiguration.CustomStreamPipelineBehaviors)
+        foreach (Type customBehaviorType in QuestyConfiguration.CustomStreamPipelineBehaviors)
         {
-            this.RegisterGeneric(builder, customBehaviorType, typeof(IStreamPipelineBehavior<,>));
+            RegisterGeneric(builder, customBehaviorType, typeof(IStreamPipelineBehavior<,>));
         }
     }
 
@@ -69,6 +61,6 @@ internal class QuestyModule : Module
     {
         builder.RegisterGeneric(implementationType)
             .As(asType)
-            .ApplyTargetScope(this.QuestyConfiguration.RegistrationScope);
+            .ApplyTargetScope(QuestyConfiguration.RegistrationScope);
     }
 }

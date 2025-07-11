@@ -4,6 +4,9 @@ using Questy.NotificationPublishers;
 
 namespace Questy.Autofac.Builder;
 
+/// <summary>
+///   Builder for configuring Questy settings.
+/// </summary>
 public class QuestyConfigurationBuilder
 {
     private readonly Assembly[] handlersFromAssembly;
@@ -28,8 +31,19 @@ public class QuestyConfigurationBuilder
         this.handlersFromAssembly = handlersFromAssembly;
     }
 
+    /// <summary>
+    ///   Creates a new instance of <see cref="QuestyConfigurationBuilder"/> with the specified assemblies.
+    /// </summary>
+    /// <param name="handlersFromAssembly"></param>
+    /// <returns></returns>
     public static QuestyConfigurationBuilder Create(params Assembly[] handlersFromAssembly) => new(handlersFromAssembly);
     
+    /// <summary>
+    ///   Adds an open-generic handler type to the configuration.
+    /// </summary>
+    /// <param name="customMediatorType"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
     public QuestyConfigurationBuilder UseMediatorType(Type customMediatorType)
     {
         if (!customMediatorType.IsAssignableTo<IMediator>() || !customMediatorType.IsAssignableTo<ISender>() || !customMediatorType.IsAssignableTo<IPublisher>())
@@ -39,10 +53,16 @@ public class QuestyConfigurationBuilder
                 nameof(customMediatorType));
         }
 
-        this.mediatorType = customMediatorType;
+        mediatorType = customMediatorType;
         return this;
     }
 
+    /// <summary>
+    ///   Adds a custom notification publisher type to the configuration.
+    /// </summary>
+    /// <param name="customNotificationPublisherType"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
     public QuestyConfigurationBuilder UseNotificationPublisher(Type customNotificationPublisherType)
     {
         if (!customNotificationPublisherType.IsAssignableTo<INotificationPublisher>())
@@ -52,65 +72,86 @@ public class QuestyConfigurationBuilder
                 nameof(customNotificationPublisherType));
         }
 
-        this.notificationPublisherType = customNotificationPublisherType;
+        notificationPublisherType = customNotificationPublisherType;
         return this;
     }
 
+    /// <summary>
+    ///   Adds a custom pipeline behavior type to the configuration.
+    /// </summary>
+    /// <param name="customPipelineBehaviorType"></param>
+    /// <returns></returns>
     public QuestyConfigurationBuilder WithCustomPipelineBehavior(Type customPipelineBehaviorType)
     {
-        if (customPipelineBehaviorType is null)
-        {
-            throw new ArgumentNullException(nameof(customPipelineBehaviorType));
-        }
+        ArgumentNullException.ThrowIfNull(customPipelineBehaviorType);
 
-        this.internalCustomPipelineBehaviorTypes.Add(customPipelineBehaviorType);
+        internalCustomPipelineBehaviorTypes.Add(customPipelineBehaviorType);
 
         return this;
     }
 
+    /// <summary>
+    ///   Adds multiple custom pipeline behavior types to the configuration.
+    /// </summary>
+    /// <param name="customPipelineBehaviorTypes"></param>
+    /// <returns></returns>
     public QuestyConfigurationBuilder WithCustomPipelineBehaviors(IEnumerable<Type> customPipelineBehaviorTypes)
     {
-        if (customPipelineBehaviorTypes is null)
+        ArgumentNullException.ThrowIfNull(customPipelineBehaviorTypes);
+
+        foreach (Type customPipelineBehaviorType in customPipelineBehaviorTypes)
         {
-            throw new ArgumentNullException(nameof(customPipelineBehaviorTypes));
-        }
-        
-        foreach (var customPipelineBehaviorType in customPipelineBehaviorTypes)
-        {
-            this.WithCustomPipelineBehavior(customPipelineBehaviorType);
+            WithCustomPipelineBehavior(customPipelineBehaviorType);
         }
 
         return this;
     }
 
+    /// <summary>
+    ///   Adds a custom stream pipeline behavior type to the configuration.
+    /// </summary>
+    /// <param name="customStreamPipelineBehaviorType"></param>
+    /// <returns></returns>
     public QuestyConfigurationBuilder WithCustomStreamPipelineBehavior(Type customStreamPipelineBehaviorType)
     {
-        if (customStreamPipelineBehaviorType is null)
-        {
-            throw new ArgumentNullException(nameof(customStreamPipelineBehaviorType));
-        }
+        ArgumentNullException.ThrowIfNull(customStreamPipelineBehaviorType);
 
-        this.internalCustomStreamPipelineBehaviorTypes.Add(customStreamPipelineBehaviorType);
+        internalCustomStreamPipelineBehaviorTypes.Add(customStreamPipelineBehaviorType);
 
         return this;
     }
 
+    /// <summary>
+    ///   Adds all known generic handler types to the configuration.
+    /// </summary>
+    /// <returns></returns>
     public QuestyConfigurationBuilder WithAllOpenGenericHandlerTypesRegistered()
     {
-        foreach (var openGenericHandlerType in KnownHandlerTypes.AllTypes)
+        foreach (Type openGenericHandlerType in KnownHandlerTypes.AllTypes)
         {
-            this.AddOpenGenericHandlerToRegister(openGenericHandlerType);
+            AddOpenGenericHandlerToRegister(openGenericHandlerType);
         }
 
         return this;
     }
 
+    /// <summary>
+    ///   Sets the registration scope for the configuration.
+    /// </summary>
+    /// <param name="registrationScope"></param>
+    /// <returns></returns>
     public QuestyConfigurationBuilder WithRegistrationScope(RegistrationScope registrationScope)
     {
         this.registrationScope = registrationScope;
         return this;
     }
 
+    /// <summary>
+    ///   Adds an open-generic handler type to the configuration.
+    /// </summary>
+    /// <param name="openGenericHandlerType"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
     public QuestyConfigurationBuilder WithOpenGenericHandlerTypeToRegister(Type openGenericHandlerType)
     {
         if (!KnownHandlerTypes.AllTypes.Contains(openGenericHandlerType))
@@ -120,42 +161,55 @@ public class QuestyConfigurationBuilder
                 nameof(openGenericHandlerType));
         }
 
-        this.AddOpenGenericHandlerToRegister(openGenericHandlerType);
+        AddOpenGenericHandlerToRegister(openGenericHandlerType);
 
         return this;
     }
 
+    /// <summary>
+    ///   Adds all known handler types to the configuration, except for IRequestHandler
+    /// </summary>
+    /// <returns></returns>
     public QuestyConfigurationBuilder WithRequestHandlersManuallyRegistered()
     {
-        foreach (var openGenericHandlerType in KnownHandlerTypes.AllTypes.Where(type => type != typeof(IRequestHandler<,>)))
+        foreach (Type? openGenericHandlerType in KnownHandlerTypes.AllTypes.Where(type => type != typeof(IRequestHandler<,>)))
         {
-            this.AddOpenGenericHandlerToRegister(openGenericHandlerType);
+            AddOpenGenericHandlerToRegister(openGenericHandlerType);
         }
 
         return this;
     }
 
+    /// <summary>
+    ///   Adds multiple custom stream pipeline behavior types to the configuration.
+    /// </summary>
+    /// <param name="customStreamPipelineBehaviorTypes"></param>
+    /// <returns></returns>
     public QuestyConfigurationBuilder WithCustomStreamPipelineBehaviors(IEnumerable<Type> customStreamPipelineBehaviorTypes)
     {
-        foreach (var customStreamPipelineBehaviorType in customStreamPipelineBehaviorTypes)
+        foreach (Type customStreamPipelineBehaviorType in customStreamPipelineBehaviorTypes)
         {
-            this.WithCustomStreamPipelineBehavior(customStreamPipelineBehaviorType);
+            WithCustomStreamPipelineBehavior(customStreamPipelineBehaviorType);
         }
 
         return this;
     }
 
+    /// <summary>
+    ///   Builds the Questy configuration based on the provided settings.
+    /// </summary>
+    /// <returns></returns>
     public QuestyConfiguration Build() => new(
-            this.handlersFromAssembly,
-            this.mediatorType,
-            this.notificationPublisherType,
-            this.internalOpenGenericHandlerTypesToRegister.ToArray(),
-            this.internalCustomPipelineBehaviorTypes.ToArray(),
-            this.internalCustomStreamPipelineBehaviorTypes.ToArray(),
-            this.registrationScope);
+            handlersFromAssembly,
+            mediatorType,
+            notificationPublisherType,
+            internalOpenGenericHandlerTypesToRegister.ToArray(),
+            internalCustomPipelineBehaviorTypes.ToArray(),
+            internalCustomStreamPipelineBehaviorTypes.ToArray(),
+            registrationScope);
     
     private void AddOpenGenericHandlerToRegister(Type openHandlerType)
     {
-        this.internalOpenGenericHandlerTypesToRegister.Add(openHandlerType);
+        internalOpenGenericHandlerTypesToRegister.Add(openHandlerType);
     }
 }

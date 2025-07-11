@@ -36,7 +36,7 @@ public class Startup
             .As<ICustomersRepository>()
             .SingleInstance();
 
-        var configuration = QuestyConfigurationBuilder.Create(typeof(CustomerLoadQuery).Assembly)
+        QuestyConfiguration configuration = QuestyConfigurationBuilder.Create(typeof(CustomerLoadQuery).Assembly)
             .WithAllOpenGenericHandlerTypesRegistered()
             .Build();
         

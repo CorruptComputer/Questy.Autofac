@@ -13,7 +13,7 @@ public class CustomersRepository : ICustomersRepository
 
     public bool AddCustomer(Customer customer)
     {
-        var redudantCustomerName = this.customersByCustomerId
+        bool redudantCustomerName = this.customersByCustomerId
             .Values
             .Any(existingCustomer =>
                 string.Equals(existingCustomer.Name, customer.Name, StringComparison.OrdinalIgnoreCase));
@@ -26,9 +26,9 @@ public class CustomersRepository : ICustomersRepository
         return this.customersByCustomerId.Values;
     }
 
-    public Customer FindCustomer(Guid id)
+    public Customer? FindCustomer(Guid id)
     {
-        this.customersByCustomerId.TryGetValue(id, out var customer);
+        customersByCustomerId.TryGetValue(id, out Customer? customer);
 
         return customer;
     }

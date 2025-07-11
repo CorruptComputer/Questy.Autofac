@@ -1,6 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using Questy.Autofac.Shared.Dto;
+﻿using Questy.Autofac.Shared.Dto;
 using Questy.Autofac.Shared.Exceptions;
 using Questy.Autofac.Shared.Queries;
 using Questy.Autofac.Shared.Repositories;
@@ -18,7 +16,7 @@ public class CustomerLoadQueryHandler : IRequestHandler<CustomerLoadQuery, Custo
 
     public async Task<CustomerDto> Handle(CustomerLoadQuery request, CancellationToken cancellationToken)
     {
-        var customer = this.customersRepository.FindCustomer(request.Id);
+        Entities.Customer? customer = customersRepository.FindCustomer(request.Id);
 
         if (customer == null)
         {

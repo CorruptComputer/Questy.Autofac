@@ -42,7 +42,7 @@ public class CustomersController : ControllerBase
     [HttpGet("{id:Guid}")]
     public async Task<CustomerDto> Get(CancellationToken cancellationToken, Guid id)
     {
-        var customer = await this.mediator.Send(new CustomerLoadQuery(id), cancellationToken);
+        CustomerDto customer = await this.mediator.Send(new CustomerLoadQuery(id), cancellationToken);
 
         return customer;
     }

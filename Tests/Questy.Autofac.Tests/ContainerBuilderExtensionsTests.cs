@@ -18,165 +18,160 @@ namespace Questy.Autofac.Tests;
 
 public class ContainerBuilderExtensionsTests : IAsyncLifetime
 {
-    private readonly ContainerBuilder builder;
-    private IContainer container;
-
-    public ContainerBuilderExtensionsTests()
-    {
-        this.builder = new ContainerBuilder();
-    }
+    private readonly ContainerBuilder builder = new();
+    private IContainer? container;
     
     [Fact]
     public void RegisterQuesty_RegistrationScopeScoped_InstancesSameInScope()
     {
-        var configuration = QuestyConfigurationBuilder
+        QuestyConfiguration configuration = QuestyConfigurationBuilder
             .Create(typeof(ResponseCommand).Assembly)
             .WithAllOpenGenericHandlerTypesRegistered()
             .WithRegistrationScope(RegistrationScope.Scoped)
             .Build();
 
-        this.container = this.builder.RegisterQuesty(configuration).Build();
+        container = builder.RegisterQuesty(configuration).Build();
         
-        this.AssertServiceRegistered();
-        this.AssertServiceResolvable();
-        var mediatorOne = this.container.Resolve<IMediator>();
-        var mediatorTwo = this.container.Resolve<IMediator>();
+        AssertServiceRegistered();
+        AssertServiceResolvable();
+        IMediator mediatorOne = container.Resolve<IMediator>();
+        IMediator mediatorTwo = container.Resolve<IMediator>();
         mediatorOne.ShouldBe(mediatorTwo);
     }
     
     [Fact]
     public void RegisterQuesty_RegistrationScopeTransient_InstancesNotSameInScope()
     {
-        var configuration = QuestyConfigurationBuilder
+        QuestyConfiguration configuration = QuestyConfigurationBuilder
             .Create(typeof(ResponseCommand).Assembly)
             .WithAllOpenGenericHandlerTypesRegistered()
             .WithRegistrationScope(RegistrationScope.Transient)
             .Build();
 
-        this.container = this.builder.RegisterQuesty(configuration).Build();
+        container = builder.RegisterQuesty(configuration).Build();
         
-        this.AssertServiceRegistered();
-        this.AssertServiceResolvable();
-        var mediatorOne = this.container.Resolve<IMediator>();
-        var mediatorTwo = this.container.Resolve<IMediator>();
+        AssertServiceRegistered();
+        AssertServiceResolvable();
+        IMediator mediatorOne = container.Resolve<IMediator>();
+        IMediator mediatorTwo = container.Resolve<IMediator>();
         mediatorOne.ShouldNotBe(mediatorTwo);
     }
     
     [Fact]
     public void RegisterQuesty_CustomMediatorProvided_ExpectInstances()
     {
-        var configuration = QuestyConfigurationBuilder
+        QuestyConfiguration configuration = QuestyConfigurationBuilder
             .Create(typeof(ResponseCommand).Assembly)
             .UseMediatorType(typeof(CustomMediator))
             .WithAllOpenGenericHandlerTypesRegistered()
             .Build();
 
-        this.container = this.builder.RegisterQuesty(configuration).Build();
+        container = builder.RegisterQuesty(configuration).Build();
         
-        this.AssertServiceRegistered();
-        this.AssertServiceResolvable();
-        var publisher = this.container.Resolve<IMediator>();
+        AssertServiceRegistered();
+        AssertServiceResolvable();
+        IMediator publisher = container.Resolve<IMediator>();
         publisher.ShouldBeOfType<CustomMediator>();
     }
     
     [Fact]
     public void RegisterQuesty_CustomPublisherProvided_ExpectInstances()
     {
-        var configuration = QuestyConfigurationBuilder
+        QuestyConfiguration configuration = QuestyConfigurationBuilder
             .Create(typeof(ResponseCommand).Assembly)
             .UseNotificationPublisher(typeof(CustomNotificationPublisher))
             .WithAllOpenGenericHandlerTypesRegistered()
             .Build();
 
-        this.container = this.builder.RegisterQuesty(configuration).Build();
+        container = builder.RegisterQuesty(configuration).Build();
         
-        this.AssertServiceRegistered();
-        this.AssertServiceResolvable();
-        var publisher = this.container.Resolve<INotificationPublisher>();
+        AssertServiceRegistered();
+        AssertServiceResolvable();
+        INotificationPublisher publisher = container.Resolve<INotificationPublisher>();
         publisher.ShouldBeOfType<CustomNotificationPublisher>();
     }
 
     [Fact]
     public void RegisterQuesty_ConfigurationProvided_ExpectInstances()
     {
-        var configuration = QuestyConfigurationBuilder
+        QuestyConfiguration configuration = QuestyConfigurationBuilder
             .Create(typeof(ResponseCommand).Assembly)
             .WithAllOpenGenericHandlerTypesRegistered()
             .Build();
 
-        this.container = this.builder.RegisterQuesty(configuration).Build();
+        container = builder.RegisterQuesty(configuration).Build();
         
-        this.AssertServiceRegistered();
-        this.AssertServiceResolvable();
+        AssertServiceRegistered();
+        AssertServiceResolvable();
     }
     
     [Fact]
     public void RegisterQuesty_ServiceProviderNotProvided_WrapperResolved()
     {
-        var configuration = QuestyConfigurationBuilder
+        QuestyConfiguration configuration = QuestyConfigurationBuilder
             .Create(typeof(ResponseCommand).Assembly)
             .WithAllOpenGenericHandlerTypesRegistered()
             .Build();
 
-        this.container = this.builder.RegisterQuesty(configuration).Build();
+        container = builder.RegisterQuesty(configuration).Build();
         
-        this.AssertServiceRegistered();
-        this.AssertServiceResolvable();
-        var serviceProvider = this.container.Resolve<IServiceProvider>();
+        AssertServiceRegistered();
+        AssertServiceResolvable();
+        IServiceProvider serviceProvider = container.Resolve<IServiceProvider>();
         serviceProvider.ShouldBeOfType<ServiceProviderWrapper>();
     }
     
     [Fact]
     public void RegisterQuesty_ServiceProviderProvidedFromOutside_AutofacServiceProviderResolved()
     {
-        this.builder.Populate(new ServiceCollection());
-        
-        var configuration = QuestyConfigurationBuilder
+        builder.Populate(new ServiceCollection());
+
+        QuestyConfiguration configuration = QuestyConfigurationBuilder
             .Create(typeof(ResponseCommand).Assembly)
             .WithAllOpenGenericHandlerTypesRegistered()
             .Build();
 
-        this.container = this.builder.RegisterQuesty(configuration).Build();
+        container = builder.RegisterQuesty(configuration).Build();
         
-        this.AssertServiceRegistered();
-        this.AssertServiceResolvable();
-        var serviceProvider = this.container.Resolve<IServiceProvider>();
+        AssertServiceRegistered();
+        AssertServiceResolvable();
+        IServiceProvider serviceProvider = container.Resolve<IServiceProvider>();
         serviceProvider.ShouldBeOfType<AutofacServiceProvider>();
     }
     
     [Fact]
     public void RegisterQuesty_Manual_ExpectInstances()
     {
-        var configuration = QuestyConfigurationBuilder
+        QuestyConfiguration configuration = QuestyConfigurationBuilder
             .Create(typeof(ResponseCommand).Assembly)
             .WithRequestHandlersManuallyRegistered()
             .Build();
 
-         this.builder
+         builder
             .RegisterQuesty(configuration)
             .RegisterType<ResponseCommandHandler>()
             .As<IRequestHandler<ResponseCommand, Response>>();
 
-         this.container = this.builder.Build();
+         container = builder.Build();
         
-         Assert.True(this.container.IsRegistered<IRequestHandler<ResponseCommand, Response>>(), "Responsehandler not registered");
+         Assert.True(container.IsRegistered<IRequestHandler<ResponseCommand, Response>>(), "Responsehandler not registered");
     }
     
     [Fact]
     public void RegisterQuesty_ConfigurationProvidedWithCustomBehaviors_Resolvable()
     {
-        var configuration = QuestyConfigurationBuilder
+        QuestyConfiguration configuration = QuestyConfigurationBuilder
             .Create(typeof(ResponseCommand).Assembly)
             .WithCustomPipelineBehavior(typeof(LoggingBehavior<,>))
             .WithAllOpenGenericHandlerTypesRegistered()
             .Build();
 
-        this.container = this.builder.RegisterQuesty(configuration).Build();
+        container = builder.RegisterQuesty(configuration).Build();
         
-        this.AssertServiceRegistered();
-        this.AssertServiceResolvable();
-        this.container.IsRegistered(typeof(IPipelineBehavior<ResponseCommand, Response>));
-        var behaviors = this.container.Resolve<IEnumerable<IPipelineBehavior<ResponseCommand, Response>>>();
+        AssertServiceRegistered();
+        AssertServiceResolvable();
+        container.IsRegistered(typeof(IPipelineBehavior<ResponseCommand, Response>));
+        IEnumerable<IPipelineBehavior<ResponseCommand, Response>> behaviors = container.Resolve<IEnumerable<IPipelineBehavior<ResponseCommand, Response>>>();
         behaviors
             .Select(type => type.GetType())
             .ShouldContain(typeof(LoggingBehavior<ResponseCommand, Response>));
@@ -184,37 +179,41 @@ public class ContainerBuilderExtensionsTests : IAsyncLifetime
     
     private void AssertServiceResolvable()
     {
-        this.container.Resolve<IServiceProvider>();
-        this.container.Resolve<IMediator>();
-        this.container.Resolve<IRequestHandler<ResponseCommand, Response>>();
-        this.container.Resolve<IRequestHandler<VoidCommand>>();
-        this.container.Resolve<INotificationHandler<SampleNotification>>();
+        Assert.NotNull(container);
+
+        container.Resolve<IServiceProvider>();
+        container.Resolve<IMediator>();
+        container.Resolve<IRequestHandler<ResponseCommand, Response>>();
+        container.Resolve<IRequestHandler<VoidCommand>>();
+        container.Resolve<INotificationHandler<SampleNotification>>();
     }
 
     private void AssertServiceRegistered()
     {
-        Assert.True(this.container.IsRegistered<IServiceProvider>(), "IServiceProvider not registered!");
-        Assert.True(this.container.IsRegistered<INotificationPublisher>(), "INotificationPublisher not registered!");
-        Assert.True(this.container.IsRegistered<IMediator>(), "Mediator not registered!");
-        Assert.True(this.container.IsRegistered<ISender>(), "ISender not registered!");
-        Assert.True(this.container.IsRegistered<IPublisher>(), "IPublisher not registered!");
-        Assert.True(this.container.IsRegistered<IPipelineBehavior<ResponseCommand, Response>>(), "PiplineBehavior not registered");
-        Assert.True(this.container.IsRegistered<IRequestHandler<ResponseCommand, Response>>(), "Responsehandler not registered");
-        Assert.True(this.container.IsRegistered<IRequestHandler<VoidCommand>>(), "Voidhandler not registered");
-        Assert.True(this.container.IsRegistered<IRequestPreProcessor<VoidCommand>>(), "Void Request Pre Processor not registered");
-        Assert.True(this.container.IsRegistered<IRequestPostProcessor<VoidCommand, Unit>>(), "Void Request Post Processor not registered");
-        Assert.True(this.container.IsRegistered<INotificationHandler<SampleNotification>>());
+        Assert.NotNull(container);
+        
+        Assert.True(container.IsRegistered<IServiceProvider>(), "IServiceProvider not registered!");
+        Assert.True(container.IsRegistered<INotificationPublisher>(), "INotificationPublisher not registered!");
+        Assert.True(container.IsRegistered<IMediator>(), "Mediator not registered!");
+        Assert.True(container.IsRegistered<ISender>(), "ISender not registered!");
+        Assert.True(container.IsRegistered<IPublisher>(), "IPublisher not registered!");
+        Assert.True(container.IsRegistered<IPipelineBehavior<ResponseCommand, Response>>(), "PiplineBehavior not registered");
+        Assert.True(container.IsRegistered<IRequestHandler<ResponseCommand, Response>>(), "Responsehandler not registered");
+        Assert.True(container.IsRegistered<IRequestHandler<VoidCommand>>(), "Voidhandler not registered");
+        Assert.True(container.IsRegistered<IRequestPreProcessor<VoidCommand>>(), "Void Request Pre Processor not registered");
+        Assert.True(container.IsRegistered<IRequestPostProcessor<VoidCommand, Unit>>(), "Void Request Post Processor not registered");
+        Assert.True(container.IsRegistered<INotificationHandler<SampleNotification>>());
     }
 
     public Task InitializeAsync() => Task.CompletedTask;
 
     public async Task DisposeAsync()
     {
-        if (this.container is null)
+        if (container is null)
         {
             return;
         }
 
-        await this.container.DisposeAsync();
+        await container.DisposeAsync();
     }
 }

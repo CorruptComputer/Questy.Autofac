@@ -2,14 +2,7 @@ using Autofac;
 
 namespace Questy.Autofac;
 
-internal class ServiceProviderWrapper : IServiceProvider
+internal class ServiceProviderWrapper(ILifetimeScope lifeTimeScope) : IServiceProvider
 {
-    private readonly ILifetimeScope lifeTimeScope;
-
-    public ServiceProviderWrapper(ILifetimeScope lifeTimeScope)
-    {
-        this.lifeTimeScope = lifeTimeScope;
-    }
-
-    public object? GetService(Type serviceType) => this.lifeTimeScope.ResolveOptional(serviceType);
+    public object? GetService(Type serviceType) => lifeTimeScope.ResolveOptional(serviceType);
 }

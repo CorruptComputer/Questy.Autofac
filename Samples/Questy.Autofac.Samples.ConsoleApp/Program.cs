@@ -14,8 +14,8 @@ public static class Program
 {
     public static async Task Main(string[] _)
     {
-        var ctx = new CancellationToken();
-        var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(ctx);
+        CancellationToken ctx = new CancellationToken();
+        CancellationTokenSource cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(ctx);
 
         Console.CancelKeyPress += (x, y) =>
         {
@@ -23,9 +23,9 @@ public static class Program
             cancellationTokenSource.Cancel(false);
         };
 
-        var builder = new ContainerBuilder();
+        ContainerBuilder builder = new ContainerBuilder();
 
-        var configuration = QuestyConfigurationBuilder.Create(typeof(CustomerLoadQuery).Assembly)
+        QuestyConfiguration configuration = QuestyConfigurationBuilder.Create(typeof(CustomerLoadQuery).Assembly)
             .WithAllOpenGenericHandlerTypesRegistered()
             .Build();
         builder.RegisterQuesty(configuration);
@@ -34,24 +34,24 @@ public static class Program
             .As<ICustomersRepository>()
             .SingleInstance();
 
-        var container = builder.Build();
+        IContainer container = builder.Build();
 
-        var lifetimeScope = container.Resolve<ILifetimeScope>();
+        ILifetimeScope lifetimeScope = container.Resolve<ILifetimeScope>();
 
-        var googleCustomerAddCommand = new CustomerAddCommand(Guid.NewGuid(), "google");
+        CustomerAddCommand googleCustomerAddCommand = new CustomerAddCommand(Guid.NewGuid(), "google");
 
-        await using (var scope = lifetimeScope.BeginLifetimeScope())
+        await using (ILifetimeScope scope = lifetimeScope.BeginLifetimeScope())
         {
-            var mediator = scope.Resolve<IMediator>();
+            IMediator mediator = scope.Resolve<IMediator>();
 
             await mediator.Send(googleCustomerAddCommand, ctx);
         }
 
-        await using (var scope = lifetimeScope.BeginLifetimeScope())
+        await using (ILifetimeScope scope = lifetimeScope.BeginLifetimeScope())
         {
-            var mediator = scope.Resolve<IMediator>();
+            IMediator mediator = scope.Resolve<IMediator>();
 
-            var customer = await mediator.Send(new CustomerLoadQuery(googleCustomerAddCommand.Id), ctx);
+            Shared.Dto.CustomerDto customer = await mediator.Send(new CustomerLoadQuery(googleCustomerAddCommand.Id), ctx);
 
             Console.WriteLine(googleCustomerAddCommand.Name == customer.Name);
 
