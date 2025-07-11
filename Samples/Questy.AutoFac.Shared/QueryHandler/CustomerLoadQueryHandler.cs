@@ -1,0 +1,36 @@
+﻿using System.Threading;
+using System.Threading.Tasks;
+using Questy.AutoFac.Shared.Dto;
+using Questy.AutoFac.Shared.Exceptions;
+using Questy.AutoFac.Shared.Queries;
+using Questy.AutoFac.Shared.Repositories;
+
+namespace Questy.AutoFac.Shared.QueryHandler;
+
+public class CustomerLoadQueryHandler : IRequestHandler<CustomerLoadQuery, CustomerDto>
+{
+    private readonly ICustomersRepository customersRepository;
+
+    public CustomerLoadQueryHandler(ICustomersRepository customersRepository)
+    {
+        this.customersRepository = customersRepository;
+    }
+
+    public async Task<CustomerDto> Handle(CustomerLoadQuery request, CancellationToken cancellationToken)
+    {
+        var customer = this.customersRepository.FindCustomer(request.Id);
+
+        if (customer == null)
+        {
+            throw new CustomerNotFoundException();
+        }
+
+        return await Task
+            .FromResult(new CustomerDto
+            {
+                Id = customer.Id,
+                Name = customer.Name
+            })
+            .ConfigureAwait(false);
+    }
+}
