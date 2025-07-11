@@ -22,7 +22,7 @@ jobs:
       uses: ./.github/actions/setup-env
 
     - name: Build Artifacts
-      run: dotnet pack ./Questy.AutoFac/Questy.AutoFac.csproj --configuration Release --output "./artifacts" --include-source
+      run: dotnet pack ./Questy.Autofac/Questy.Autofac.csproj --configuration Release --output "./artifacts" --include-source
 
     - name: Artifacts
       uses: actions/upload-artifact@v4

@@ -1,3 +1,3 @@
-# Questy.AutoFac
+# Questy.Autofac
 
 This project was forked from https://github.com/alsami/MediatR.Extensions.Autofac.DependencyInjection at commit dfad828add7692f0d39d6b560fe7cb9fc6bb339d. I will be keeping the same license as was there in this commit and have no plans to change that. This fork was made for my own personal use and there will be changes as I see fit, so this is probably not something you want to use.
