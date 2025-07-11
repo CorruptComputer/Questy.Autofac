@@ -76,7 +76,7 @@ public class ContainerBuilderExtensionsTests : IAsyncLifetime
         this.AssertServiceRegistered();
         this.AssertServiceResolvable();
         var publisher = this.container.Resolve<IMediator>();
-        publisher.ShouldBeTypeOf(typeof(CustomMediator));
+        publisher.ShouldBeOfType<CustomMediator>();
     }
     
     [Fact]
@@ -93,7 +93,7 @@ public class ContainerBuilderExtensionsTests : IAsyncLifetime
         this.AssertServiceRegistered();
         this.AssertServiceResolvable();
         var publisher = this.container.Resolve<INotificationPublisher>();
-        publisher.ShouldBeTypeOf(typeof(CustomNotificationPublisher));
+        publisher.ShouldBeOfType<CustomNotificationPublisher>();
     }
 
     [Fact]
@@ -123,7 +123,7 @@ public class ContainerBuilderExtensionsTests : IAsyncLifetime
         this.AssertServiceRegistered();
         this.AssertServiceResolvable();
         var serviceProvider = this.container.Resolve<IServiceProvider>();
-        serviceProvider.ShouldBeTypeOf(typeof(ServiceProviderWrapper));
+        serviceProvider.ShouldBeOfType<ServiceProviderWrapper>();
     }
     
     [Fact]
@@ -141,7 +141,7 @@ public class ContainerBuilderExtensionsTests : IAsyncLifetime
         this.AssertServiceRegistered();
         this.AssertServiceResolvable();
         var serviceProvider = this.container.Resolve<IServiceProvider>();
-        serviceProvider.ShouldBeTypeOf(typeof(AutofacServiceProvider));
+        serviceProvider.ShouldBeOfType<AutofacServiceProvider>();
     }
     
     [Fact]
