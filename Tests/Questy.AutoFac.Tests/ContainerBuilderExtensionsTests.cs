@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
-using FluentAssertions;
+using Shouldly;
 using Questy.AutoFac.Builder;
 using Questy.AutoFac.Tests.Behaviors;
 using Questy.AutoFac.Tests.Commands;
@@ -41,7 +41,7 @@ public class ContainerBuilderExtensionsTests : IAsyncLifetime
         this.AssertServiceResolvable();
         var mediatorOne = this.container.Resolve<IMediator>();
         var mediatorTwo = this.container.Resolve<IMediator>();
-        mediatorOne.Should().BeSameAs(mediatorTwo);
+        mediatorOne.ShouldBe(mediatorTwo);
     }
     
     [Fact]
@@ -59,7 +59,7 @@ public class ContainerBuilderExtensionsTests : IAsyncLifetime
         this.AssertServiceResolvable();
         var mediatorOne = this.container.Resolve<IMediator>();
         var mediatorTwo = this.container.Resolve<IMediator>();
-        mediatorOne.Should().NotBeSameAs(mediatorTwo);
+        mediatorOne.ShouldNotBe(mediatorTwo);
     }
     
     [Fact]
@@ -76,7 +76,7 @@ public class ContainerBuilderExtensionsTests : IAsyncLifetime
         this.AssertServiceRegistered();
         this.AssertServiceResolvable();
         var publisher = this.container.Resolve<IMediator>();
-        publisher.Should().BeOfType<CustomMediator>();
+        publisher.ShouldBeTypeOf(typeof(CustomMediator));
     }
     
     [Fact]
@@ -93,7 +93,7 @@ public class ContainerBuilderExtensionsTests : IAsyncLifetime
         this.AssertServiceRegistered();
         this.AssertServiceResolvable();
         var publisher = this.container.Resolve<INotificationPublisher>();
-        publisher.Should().BeOfType<CustomNotificationPublisher>();
+        publisher.ShouldBeTypeOf(typeof(CustomNotificationPublisher));
     }
 
     [Fact]
@@ -123,7 +123,7 @@ public class ContainerBuilderExtensionsTests : IAsyncLifetime
         this.AssertServiceRegistered();
         this.AssertServiceResolvable();
         var serviceProvider = this.container.Resolve<IServiceProvider>();
-        serviceProvider.Should().BeOfType<ServiceProviderWrapper>();
+        serviceProvider.ShouldBeTypeOf(typeof(ServiceProviderWrapper));
     }
     
     [Fact]
@@ -141,7 +141,7 @@ public class ContainerBuilderExtensionsTests : IAsyncLifetime
         this.AssertServiceRegistered();
         this.AssertServiceResolvable();
         var serviceProvider = this.container.Resolve<IServiceProvider>();
-        serviceProvider.Should().BeOfType<AutofacServiceProvider>();
+        serviceProvider.ShouldBeTypeOf(typeof(AutofacServiceProvider));
     }
     
     [Fact]
@@ -179,8 +179,7 @@ public class ContainerBuilderExtensionsTests : IAsyncLifetime
         var behaviors = this.container.Resolve<IEnumerable<IPipelineBehavior<ResponseCommand, Response>>>();
         behaviors
             .Select(type => type.GetType())
-            .Should()
-            .Contain(typeof(LoggingBehavior<ResponseCommand, Response>));
+            .ShouldContain(typeof(LoggingBehavior<ResponseCommand, Response>));
     }
     
     private void AssertServiceResolvable()
