@@ -12,7 +12,7 @@
     <Deterministic>true</Deterministic>
 
     <!-- Assembly/NuGet info -->
-    <Version>0.0.3</Version>
+    <Version>0.0.4</Version>
     <Authors>Nickolas Gupton and MediatR.Extensions.Autofac.DependencyInjection contributors up to commit dfad828add7692f0d39d6b560fe7cb9fc6bb339d</Authors>
     <RepositoryUrl>https://github.com/CorruptComputer/Questy.Autofac</RepositoryUrl>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -31,7 +31,7 @@
 
   <ItemGroup>
     <PackageReference Include="Autofac" Version="8.4.0" />
-    <PackageReference Include="Questy" Version="0.0.4" />
+    <PackageReference Include="Questy" Version="0.0.5" />
   </ItemGroup>
 
   <ItemGroup>
